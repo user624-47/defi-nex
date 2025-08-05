@@ -1,0 +1,5 @@
+
+{
+  "name": "DeFi Nexus Dashboard",
+  "description": "A modern DeFi dashboard for managing Collateralized Debt Positions (CDPs), participating in vanilla lending markets, and earning yield through stability pools. Built with React, TypeScript, and TailwindCSS, it provides a seamless and intuitive interface for interacting with decentralized finance primitives."
+}
