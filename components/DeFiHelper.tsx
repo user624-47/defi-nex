@@ -82,6 +82,36 @@ const DeFiHelper: React.FC = () => {
                         } else {
                             throw new Error('Only feUSD can be deposited to the stability pool.');
                         }
+                    } else if (intent.type === 'portfolio_summary') {
+                        // Portfolio health summary
+                        const supplied = userLendingPositions.reduce((sum, p) => sum + p.suppliedAmount * (TOKENS[p.tokenSymbol]?.price || 1), 0);
+                        const borrowed = userLendingPositions.reduce((sum, p) => sum + p.borrowedAmount * (TOKENS[p.tokenSymbol]?.price || 1), 0);
+                        const cdpCount = cdpPositions.length;
+                        const healthFactors = cdpPositions.map(cdp => cdp.healthFactor).filter(Boolean);
+                        const minHealth = healthFactors.length ? Math.min(...healthFactors) : null;
+                        resultMsg = `Portfolio Summary:\n- Total Supplied: $${supplied.toLocaleString(undefined, {maximumFractionDigits:2})}\n- Total Borrowed: $${borrowed.toLocaleString(undefined, {maximumFractionDigits:2})}\n- CDPs: ${cdpCount}\n${minHealth !== null ? `- Lowest Health Factor: ${minHealth.toFixed(2)}` : ''}`;
+                    } else if (intent.type === 'optimization_suggestion') {
+                        // Simple optimization: suggest moving to highest APY pool
+                        const bestPool = Object.values(TOKENS).reduce((best, token) => {
+                            const pools = [token];
+                            const apy = pools[0]?.supplyApy || 0;
+                            return apy > (best.apy || 0) ? { symbol: token.symbol, apy } : best;
+                        }, { symbol: '', apy: 0 });
+                        if (bestPool.symbol) {
+                            resultMsg = `Consider supplying more ${bestPool.symbol} to earn up to ${bestPool.apy}% APY.`;
+                        } else {
+                            resultMsg = 'No optimization suggestion available.';
+                        }
+                    } else if (intent.type === 'explain_concept') {
+                        // Use knowledge base
+                        const { CONCEPTS } = await import('../services/concepts');
+                        const conceptKey = intent.params.concept.toLowerCase();
+                        const entry = CONCEPTS[conceptKey];
+                        if (entry) {
+                            resultMsg = entry.short + (entry.link ? ` [Learn more](${entry.link})` : '');
+                        } else {
+                            resultMsg = `Sorry, I don't have an explanation for "${intent.params.concept}" yet.`;
+                        }
                     } else {
                         resultMsg = `Intent recognized but not implemented: ${intent.type}`;
                     }

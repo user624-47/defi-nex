@@ -46,5 +46,21 @@ export function parseIntent(input: string): Intent | null {
     };
   }
 
+  // Portfolio summary
+  if (/summarize (my )?(portfolio|positions)/.test(lower) || /portfolio health/.test(lower)) {
+    return { type: 'portfolio_summary', params: {} };
+  }
+
+  // Optimization suggestion
+  if (/suggest (an )?optimization/.test(lower) || /how can i (optimize|improve)/.test(lower)) {
+    return { type: 'optimization_suggestion', params: {} };
+  }
+
+  // Concept explanation
+  match = lower.match(/explain (what is |the concept of )?([a-zA-Z ]+)/);
+  if (match) {
+    return { type: 'explain_concept', params: { concept: match[2].trim() } };
+  }
+
   return null;
 }
