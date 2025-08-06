@@ -19,8 +19,8 @@ export function parseIntent(input: string): Intent | null {
     };
   }
 
-  // Supply to lending pool
-  match = lower.match(/supply ([\d.]+) ([a-zA-Z]+) to (the )?lending pool/);
+  // Supply to lending pool (with or without 'to the lending pool')
+  match = lower.match(/supply ([\d.]+) ([a-zA-Z]+)( to (the )?lending pool)?/);
   if (match) {
     return {
       type: 'supply_lending',
